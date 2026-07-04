@@ -1,4 +1,4 @@
-# machine-setup 🖥️ → ✨
+# start 🖥️ → ✨
 
 One-touch, idempotent Mac configuration — built conversationally with
 Claude Code. If a setting isn't in this repo, it doesn't exist.
@@ -6,7 +6,13 @@ Claude Code. If a setting isn't in this repo, it doesn't exist.
 ## New Mac (the one-command story)
 
 ```sh
-git clone https://github.com/loudoguno/machine-setup.git && cd machine-setup && ./run
+curl -fsSL https://raw.githubusercontent.com/loudoguno/start/main/bootstrap.sh | bash
+```
+
+or, by hand:
+
+```sh
+git clone https://github.com/loudoguno/start.git ~/start && cd ~/start && ./run
 ```
 
 On a factory-fresh Mac, running `git` triggers the Xcode Command Line Tools
@@ -16,9 +22,19 @@ else: Homebrew, Claude Code, apps, settings, dotfiles.
 Run it twice: the second run should change nothing and finish in seconds.
 That's the idempotency test.
 
+## Setting up a machine (branches & tags)
+
+First setup of a machine happens on its own short-lived branch
+(`setup/<machine>`, e.g. `setup/neo`), grown over one long Claude
+conversation. When the machine converges, the branch **merges to `main`**
+and gets a tag like `neo/converged-2026-07-04`. Provenance ("what it took")
+lives in the tag range, `logs/JOURNAL.md`, and `machines/<host>.json` —
+while `main` stays the single convergent truth every machine runs.
+Why not permanent per-machine branches: `docs/DECISIONS.md` D7.
+
 ## The daily loop
 
-1. `cd machine-setup && claude` — keep this open in a terminal tab
+1. `cd ~/start && claude` — keep this open in a terminal tab
 2. Say what you want changed ("make the Dock auto-hide")
 3. Claude edits the repo → press the button: `./run`
 4. Worked → journaled + committed forever. Didn't → tell Claude, iterate.
@@ -27,6 +43,8 @@ That's the idempotency test.
 
 ```
 run                  ← the button (single idempotent entrypoint)
+bootstrap.sh         ← curl-able front door (clone-or-pull, then ./run)
+docs/DECISIONS.md    ← why each technology/convention was chosen
 Brewfile             ← apps & CLI tools (brew bundle)
 macos-defaults.sh    ← system settings, one comment each
 config/              ← dotfiles, symlinked to ~/.<name>
@@ -49,8 +67,5 @@ applied automatically.
 ## Publish (first time only)
 
 ```sh
-cd machine-setup
-git init && git add -A && git commit -m "scaffold: initial machine-setup system"
-gh auth login
-gh repo create machine-setup --public --source=. --push   # public: fresh Macs clone over https with zero credentials
+gh repo create start --public --source=. --push   # public: fresh Macs clone over https with zero credentials
 ```

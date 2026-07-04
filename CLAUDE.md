@@ -1,4 +1,4 @@
-# machine-setup — Instructions for Claude Code
+# start — Instructions for Claude Code
 
 You are the co-pilot for an idempotent Mac configuration system. The human
 talks; you edit this repo; `./run` makes it real. Nothing gets changed on the
@@ -18,6 +18,15 @@ entire setup on any Mac. Every change you make must preserve that.
 | Machine-specific quirks | `machines/<host>.notes.md` |
 | History of every change | `logs/JOURNAL.md` |
 | Opt-in ideas (human selects; never auto-applied) | `SUGGESTIONS.md` + `dashboard.html` |
+| Why a technology/convention was chosen or rejected | `docs/DECISIONS.md` (append an entry when deciding) |
+
+## Branches & tags
+- First setup of a machine: short-lived branch `setup/<machine>`, grown
+  during the conversation, **merged to `main` when the machine converges**,
+  then tagged `<machine>/converged-YYYY-MM-DD`.
+- `main` is the single convergent truth all machines run. Never leave a
+  machine on a long-lived branch; machine differences belong in data
+  (`machines/`, `Brewfile.<host>`), not in git history. Rationale: D7.
 
 ## Idempotency contract
 - `./run` must be safe to run repeatedly. Two consecutive runs: the second

@@ -12,7 +12,7 @@
 
 | ID | Suggestion | Why | Action |
 |----|------------|-----|--------|
-| A1 | ~~`git init` + initial commit~~ **done 2026-07-03** | Wasn't a git repo yet; publish steps in README never run | done locally; `gh repo create machine-setup --public --source=. --push` when ready |
+| A1 | ~~`git init` + initial commit + publish~~ **done** | Wasn't a git repo yet | published as `loudoguno/start` (public) 2026-07-04 |
 | A2 | ~~Fix `YOURUSER` in README clone URL~~ **done** | Placeholder would break the one-command story | replaced with `loudoguno` |
 | A3 | Add `./run --check` doctor mode | Idempotency needs proof: a dry-run that prints `OK` / `WOULD CHANGE` per step without touching anything | add `CHECK=1` env respected by each script; `[[ "${1:-}" == "--check" ]] && export CHECK=1` in `run` |
 | A4 | Run-twice invariant + shellcheck CI | Second consecutive `./run` must be all no-ops; lint every script on push | `.github/workflows/ci.yml` running `shellcheck scripts/* run` (macOS runner can even run `./run` twice) |

@@ -6,6 +6,13 @@ these; the format lives in CLAUDE.md.
 
 <!-- NEW ENTRIES BELOW -->
 
+## 2026-07-04 — Named `start`, published public, branch strategy, bootstrap.sh, decisions doc
+- **Asked:** Public repo yes; call it easy-setup "or something better"; per-machine branches so each setup is traceable; repo must document the why; kill mx3's chezmoi-sync LaunchAgent; design loudog.uno/start
+- **Done:** Renamed repo `start` (pairs with the future `loudog.uno/start` URL); `docs/DECISIONS.md` (D1–D8: bash+brew not nix, no secrets/no ~/.env by design, public, one entrypoint, homeostat cadence, orchestrate-don't-absorb, short-lived `setup/<machine>` branches merged to main + `<machine>/converged-<date>` tags); `bootstrap.sh` curl-able front door; README/CLAUDE.md updated; published `github.com/loudoguno/start` (public). Also removed mx3's zombie `com.loudog.chezmoi-sync` LaunchAgent (pieces backed up to `~/.local/share/removed-chezmoi-sync-2026-07-04/`)
+- **Result:** ✅ published; `./run` still ⚠️ pending first execution on real hardware (planned: macbook "neo" on `setup/neo`)
+- **Machine:** authored on mx3 · macOS 27.0 (26A5368g)
+- **Commit:** see git log
+
 ## 2026-07-03 — Inventory of mx3 + mxb → suggestions catalog + dashboard
 - **Asked:** Survey both existing Macs (apps, CLI tools, curated defaults), produce an opt-in list of ideas with incorporation actions, plus an interactive HTML dashboard for exploring it — nothing auto-added; Lou selects
 - **Done:** Read-only inventories of mx3 (local) and mxb (over SSH); `SUGGESTIONS.md` (30 items, categories A–F, anchored in observed diffs); `dashboard.html` (self-contained: search, category filters, tooltips, checkbox→copyable action plan, light/dark); README `YOURUSER`→`loudoguno` + publish set to `--public`; CLAUDE.md file map row for the new files; `git init` + initial commits. Notable finds: chezmoi installed on neither machine yet mx3 runs a failing chezmoi-sync LaunchAgent since 2026-03-10; InitialKeyRepeat 120 vs 15; `jq`/`ripgrep` on neither machine
