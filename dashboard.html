@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>machine-setup · exploration dashboard</title>
+<style>
+:root{
+  --surface:#fcfcfb; --plane:#f9f9f7; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --border:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#1baf7a; --s3:#eda100; --s6:#e34948;
+  --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
+  --chip:#eeede9; --accentbg:rgba(42,120,214,.08);
+}
+@media (prefers-color-scheme: dark){:root{
+  --surface:#1a1a19; --plane:#0d0d0d; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --border:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#199e70; --s3:#c98500; --s6:#e66767;
+  --chip:#262624; --accentbg:rgba(57,135,229,.14);
+}}
+:root[data-theme="light"]{
+  --surface:#fcfcfb; --plane:#f9f9f7; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --border:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#1baf7a; --s3:#eda100; --s6:#e34948;
+  --chip:#eeede9; --accentbg:rgba(42,120,214,.08);
+}
+:root[data-theme="dark"]{
+  --surface:#1a1a19; --plane:#0d0d0d; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --border:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#199e70; --s3:#c98500; --s6:#e66767;
+  --chip:#262624; --accentbg:rgba(57,135,229,.14);
+}
+*{box-sizing:border-box;margin:0}
+body{font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--plane);color:var(--ink);padding:24px clamp(12px,4vw,48px) 80px}
+h1{font-size:22px;letter-spacing:-.01em}
+h2{font-size:16px;margin:34px 0 10px}
+.sub{color:var(--ink2);font-size:13px;margin-top:4px}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+button.ghost{background:none;border:1px solid var(--border);border-radius:8px;color:var(--ink2);padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
+button.ghost:hover{background:var(--chip)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:18px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.tile .v{font-size:26px;font-weight:650}
+.tile .l{font-size:12px;color:var(--muted);margin-top:2px}
+.tile .d{font-size:12px;color:var(--ink2)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:10px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
+.card h3{font-size:14px;display:flex;align-items:center;gap:8px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.kv{font-size:13px;color:var(--ink2);margin-top:8px}
+.kv b{color:var(--ink);font-weight:600}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--grid);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td code, .act code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--chip);border-radius:5px;padding:1px 5px}
+.same{color:var(--good);font-weight:600}
+.diff{color:var(--crit);font-weight:600}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.chipbtn{border:1px solid var(--border);background:var(--surface);color:var(--ink2);border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;cursor:pointer}
+.chipbtn[aria-pressed="true"]{background:var(--accentbg);border-color:var(--s1);color:var(--ink)}
+#q{flex:1;min-width:180px;border:1px solid var(--border);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;font:inherit;font-size:13px}
+.sugg{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:grid;grid-template-columns:auto 1fr;gap:10px}
+.sugg.checked{border-color:var(--s1);background:var(--accentbg)}
+.sugg input{margin-top:4px;accent-color:var(--s1);width:16px;height:16px}
+.sugg .t{font-weight:600;font-size:14px}
+.sugg .why{color:var(--ink2);font-size:13px;margin-top:2px}
+.sugg .act{margin-top:6px;font-size:12px;color:var(--ink2)}
+.sugg .act pre{background:var(--chip);border-radius:8px;padding:8px 10px;margin-top:4px;overflow-x:auto;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--ink);white-space:pre-wrap}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.badge{font-size:11px;border-radius:999px;padding:1px 9px;background:var(--chip);color:var(--ink2)}
+.badge.m-mx3{background:var(--accentbg);color:var(--s1)}
+.badge.m-mxb{background:rgba(27,175,122,.12);color:var(--s2)}
+.badge.done{background:rgba(12,163,12,.12);color:var(--good)}
+.badge.decision{background:rgba(236,131,90,.14);color:var(--serious)}
+a{color:var(--s1);text-decoration:none} a:hover{text-decoration:underline}
+.tip{position:relative;cursor:help;border-bottom:1px dotted var(--muted)}
+.tip::after{content:attr(data-tip);position:absolute;left:0;bottom:125%;z-index:9;background:var(--ink);color:var(--plane);
+  font-size:12px;line-height:1.4;padding:7px 10px;border-radius:8px;width:max-content;max-width:290px;
+  opacity:0;pointer-events:none;transition:opacity .12s;white-space:normal}
+.tip:hover::after,.tip:focus::after{opacity:1}
+#plan{position:sticky;bottom:0;margin-top:26px;background:var(--surface);border:1px solid var(--s1);border-radius:14px;padding:14px 16px;box-shadow:0 -6px 24px rgba(0,0,0,.08)}
+#plan h2{margin:0 0 6px;font-size:14px}
+#plan pre{background:var(--chip);border-radius:8px;padding:10px;max-height:200px;overflow:auto;font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap}
+#plan .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.hidden{display:none}
+.note{font-size:12px;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div>
+    <h1>⌨️ machine-setup — exploration dashboard</h1>
+    <div class="sub">mx3 ↔ mxb inventory · 2026-07-03 · nothing here is auto-applied — check items to build your plan, then hand it to the conversation</div>
+  </div>
+  <button class="ghost" id="themeBtn">◐ theme</button>
+</div>
+
+<div class="tiles" id="tiles"></div>
+
+<h2>The two machines</h2>
+<div class="cols">
+  <div class="card"><h3><span class="dot" style="background:var(--s1)"></span>mx3 <span class="badge">primary desktop</span></h3>
+    <div class="kv">macOS <b>27.0</b> (26A5368g) · Homebrew <b>5.1.14</b> · node v25.8.2</div>
+    <div class="kv"><b>33</b> brew formulae · <b>50</b> casks · <span class="tip" data-tip="Raycast, Alfred 5, Karabiner-Elements, Keyboard Maestro, Obsidian and ~30 more apps live in /Applications but are NOT tracked by Homebrew — invisible to any Brewfile">many unmanaged apps</span> · <span class="tip" data-tip="BetterTouchTool, CleanShot X, Hookmark, iStat Menus arrive via Setapp subscription, not brew">Setapp ✓</span></div>
+    <div class="kv">⚠️ <span class="tip" data-tip="com.loudog.chezmoi-sync LaunchAgent errors every ~30 min since 2026-03-10: chezmoi isn't even installed. health-check.sh's chezmoi sections are dead code reporting 'in sync' vacuously.">chezmoi zombie LaunchAgent</span> · ⚠️ <span class="tip" data-tip="Karabiner/goku + kanata + skhd/yabai taps all present — three keyboard-remap engines can fight over input events">3 remap engines</span></div>
+    <div class="kv">keybindings repo: <b>main</b>, 3 dirty files, 3 stashes</div>
+  </div>
+  <div class="card"><h3><span class="dot" style="background:var(--s2)"></span>mxb <span class="badge">M1 Max MacBook Pro</span></h3>
+    <div class="kv">macOS <b>27.0</b> (26A5368g) · Homebrew <b>6.0.6</b> · node v25.6.1</div>
+    <div class="kv"><b>58</b> brew formulae · <b>80</b> casks · mas ✓ (0 apps) · Setapp ✓</div>
+    <div class="kv">🔐 has <span class="tip" data-tip="gitleaks + trufflehog installed — exactly the tools to gate a public repo push">gitleaks + trufflehog</span> · 🧰 <span class="tip" data-tip="qlmarkdown, qlstephen, quicklook-json, qlcolorcode, qlvideo — spacebar previews for markdown, JSON, code, video">QuickLook suite</span></div>
+    <div class="kv">keybindings repo: <b>maxbook-pro</b> branch, 1 dirty file · chezmoi: empty dir</div>
+  </div>
+</div>
+
+<h2>Defaults worth reconciling <span class="note">(live values, curated domains)</span></h2>
+<div class="tablewrap"><table>
+<thead><tr><th>Setting</th><th>mx3</th><th>mxb</th><th>Read</th></tr></thead>
+<tbody id="diffrows"></tbody>
+</table></div>
+
+<h2 id="sugh">Suggestions catalog <span class="note">(opt-in — you select)</span></h2>
+<div class="controls">
+  <input id="q" type="search" placeholder="search suggestions… (e.g. brewfile, keyboard, quicklook)">
+  <span id="cats"></span>
+</div>
+<div id="list"></div>
+
+<div id="plan">
+  <div class="row"><h2>📋 Selected action plan (<span id="count">0</span>)</h2>
+  <span><button class="ghost" id="copyBtn">copy</button> <button class="ghost" id="clearBtn">clear</button></span></div>
+  <pre id="planOut">Check suggestions above — their action snippets collect here, ready to paste into the conversation or a script.</pre>
+</div>
+
+<script>
+const DIFFS = [
+ ["InitialKeyRepeat","120","15","delay before key repeat starts (lower = faster). 120 ≈ 1.8s — unusually slow for a keyboard-first user; mxb's 15 is near-instant"],
+ ["KeyRepeat","5","5","repeat speed once repeating — already matched"],
+ ["AppleKeyboardUIMode","1","3","3 = Full Keyboard Access: Tab reaches every button/control in dialogs"],
+ ["Dock tilesize","40","16","icon size in px"],
+ ["Dock autohide","1","1","matched"],
+ ["Finder ShowStatusBar","0","1","item count + free space bar at bottom of Finder windows"],
+ ["Finder view style","Nlsv","Nlsv","list view — matched"],
+ ["Spelling autocorrect","unset (on)","1 (on)","NSAutomaticSpellingCorrectionEnabled — consider explicitly off on both"],
+ ["Screenshot style","display","window (+clicks +cursor)","com.apple.screencapture style"],
+ ["mouse.scaling","1","3","pointer speed — possibly intentional desktop/laptop split"],
+ ["Tap to click","1","1","matched"],
+ ["3-finger drag","0","0","matched"]
+];
+const SUGG = [
+ {id:"A1",cat:"Repo",done:true,title:"git init + initial commit",why:"machine-setup wasn't a git repo yet — done locally on 2026-07-03. Publish when ready.",act:"gh repo create machine-setup --public --source=. --push",m:[]},
+ {id:"A2",cat:"Repo",done:true,title:"Fix YOURUSER placeholder in README",why:"clone URL now points at loudoguno.",act:"(done)",m:[]},
+ {id:"A3",cat:"Repo",title:"./run --check doctor mode",why:"Idempotency needs proof: a dry-run printing OK / WOULD-CHANGE per step, touching nothing. This is the single highest-leverage upgrade — it turns the script into a drift detector.",act:"# in run:\n[[ \"${1:-}\" == \"--check\" ]] && export CHECK=1\n# each script: guard mutations with\nif [[ \"${CHECK:-}\" == 1 ]]; then echo \"WOULD: <action>\"; else <action>; fi",m:[]},
+ {id:"A4",cat:"Repo",title:"Run-twice invariant + shellcheck CI",why:"Second consecutive ./run must be all no-ops; lint scripts on every push.",act:"# .github/workflows/ci.yml\n# runs: shellcheck run scripts/*.sh\n# macos runner: ./run && ./run  (second must report zero changes)",m:[]},
+ {id:"A5",cat:"Repo",title:"Manual-steps checklist printer",why:"TCC permission dialogs (Karabiner Input Monitoring + Accessibility), App Store / 1Password / Setapp sign-ins, and Wispr Flow (manual by house rule) can never be scripted — print them at the end of ./run so they're never forgotten.",act:"scripts/manual-checklist.sh  # echo numbered human steps; run calls it last",m:[]},
+ {id:"A6",cat:"Repo",title:"Per-machine Brewfile layering",why:"mx3 and mxb legitimately differ (desktop vs laptop). One Brewfile forces lowest common denominator.",act:"brew bundle --file=Brewfile\n[[ -f \"Brewfile.$(scutil --get LocalHostName)\" ]] && brew bundle --file=\"Brewfile.$(scutil --get LocalHostName)\"",m:[]},
+ {id:"A7",cat:"Repo",title:"Secrets tripwire before push",why:"Repo is destined for public GitHub. mxb already has gitleaks + trufflehog.",act:"brew \"gitleaks\"\n# .git/hooks/pre-push: gitleaks protect --staged",m:[]},
+ {id:"B1",cat:"Bootstrap",title:"Step: clone + wire ~/keybindings",why:"The real dotfile owner (zshrc, karabiner, slate, ghostty via symlinks). docs/SETUP-NEW-MACHINE.md is exactly scriptable: clone → setup-symlinks.sh → goku → health-check.",act:"scripts/keybindings.sh:\ngit clone https://github.com/loudoguno/keybindings.git ~/keybindings  # https: no SSH key on fresh box\n~/keybindings/scripts/setup-symlinks.sh && goku",m:["mx3","mxb"]},
+ {id:"B2",cat:"Bootstrap",title:"Brewfile: everything shell/zshrc assumes",why:"zshrc sources tools vanilla macOS lacks — a fresh shell errors until these exist.",act:"tap \"yqrashawn/goku\"\nbrew \"goku\"\ncask \"karabiner-elements\"\nbrew \"fzf\"\nbrew \"bat\"\nbrew \"neovim\"\nbrew \"bun\"\nbrew \"fabric-ai\"",m:[]},
+ {id:"B3",cat:"Bootstrap",title:"Seed ~/.env and ~/.zshrc.local",why:"Untracked by design; shell references them on every launch.",act:"[[ -f ~/.env ]] || cp ~/keybindings/shell/env.example ~/.env\n[[ -f ~/.zshrc.local ]] || cp ~/keybindings/shell/zshrc.local.example ~/.zshrc.local",m:[]},
+ {id:"B4",cat:"Bootstrap",decision:true,title:"Resolve the chezmoi zombie",why:"chezmoi is installed on NEITHER machine, yet mx3's com.loudog.chezmoi-sync LaunchAgent has errored every ~30 min since 2026-03-10, and health-check.sh carries dead chezmoi sections. Decide: adopt for real (conflicts: it would co-own ~/.zshrc with keybindings' symlinks) or remove.",act:"# remove path:\nlaunchctl unload ~/Library/LaunchAgents/com.loudog.chezmoi-sync.plist\nrm ~/Library/LaunchAgents/com.loudog.chezmoi-sync.plist\n# + strip chezmoi sections from keybindings/scripts/health-check.sh",m:["mx3"]},
+ {id:"B5",cat:"Bootstrap",title:"Fix setup-symlinks.sh re-run bug",why:"karabiner/.slate/DefaultKeyBinding.dict backup guards use [[ -e ]] (true for symlinks) → a 2nd run moves the symlink onto .bak, destroying the original real-file backup. ghostty/zshrc already guard with ! -L.",act:"# in keybindings/scripts/setup-symlinks.sh, three places:\nif [[ -e \"$target\" && ! -L \"$target\" ]]; then mv \"$target\" \"$target.bak\"; fi",m:["mx3","mxb"]},
+ {id:"C1",cat:"CLI",title:"mxb → everywhere: fd, glow, tldr, tree, mas, watchexec, gitleaks",why:"Daily quality-of-life CLIs that mx3 is missing.",act:"brew \"fd\"\nbrew \"glow\"\nbrew \"tldr\"\nbrew \"tree\"\nbrew \"mas\"\nbrew \"watchexec\"\nbrew \"gitleaks\"",m:["mx3"],links:[["fd","https://formulae.brew.sh/formula/fd"],["glow","https://formulae.brew.sh/formula/glow"],["watchexec","https://formulae.brew.sh/formula/watchexec"]]},
+ {id:"C2",cat:"CLI",title:"mx3 → mxb: bat, pandoc, go, vercel-cli, vhs, unar",why:"Present only on mx3; pandoc/vhs used in doc workflows.",act:"brew \"bat\"\nbrew \"pandoc\"\nbrew \"go\"\nbrew \"vercel-cli\"\nbrew \"vhs\"\nbrew \"unar\"",m:["mxb"],links:[["vhs","https://formulae.brew.sh/formula/vhs"]]},
+ {id:"C3",cat:"CLI",title:"On neither machine: jq, ripgrep, shellcheck",why:"jq for machines/*.json snapshots; ripgrep for everything; shellcheck powers the CI suggestion.",act:"brew \"jq\"\nbrew \"ripgrep\"\nbrew \"shellcheck\"",m:["mx3","mxb"],links:[["jq","https://formulae.brew.sh/formula/jq"],["ripgrep","https://formulae.brew.sh/formula/ripgrep"],["shellcheck","https://formulae.brew.sh/formula/shellcheck"]]},
+ {id:"C4",cat:"CLI",decision:true,title:"Case-by-case from mxb: ffmpeg, nmap, cloudflared, flyctl, trufflehog, rich-cli",why:"Real use on mxb; heavier installs — decide per machine via Brewfile layering (A6).",act:"# Brewfile.mx3 (only what you'll use)\nbrew \"ffmpeg\"\nbrew \"cloudflared\"",m:["mx3"]},
+ {id:"D1",cat:"Apps",title:"QuickLook suite (mxb-only) → mx3",why:"Spacebar previews for markdown, JSON, code, video.",act:"cask \"qlmarkdown\"\ncask \"qlstephen\"\ncask \"quicklook-json\"\ncask \"qlcolorcode\"\ncask \"qlvideo\"",m:["mx3"]},
+ {id:"D2",cat:"Apps",decision:true,title:"mxb-only apps to consider on mx3: appcleaner, keyclu, vlc, fira-code nerd font, tower",why:"KeyClu overlaps KeyCue (already on mx3) — pick one.",act:"cask \"appcleaner\"\ncask \"vlc\"\ncask \"font-fira-code-nerd-font\"",m:["mx3"]},
+ {id:"D3",cat:"Apps",decision:true,title:"mx3-only apps to consider on mxb: aerospace, homerow, leader-key, keyboard-cowboy, cmux",why:"The keyboard-driven stack is asymmetric between machines.",act:"cask \"aerospace\"\ncask \"homerow\"\ncask \"leader-key\"",m:["mxb"]},
+ {id:"D4",cat:"Apps",title:"Brewfile-ify unmanaged apps",why:"Raycast, Alfred, Obsidian, Karabiner-Elements, Keyboard Maestro exist in /Applications outside brew on at least one machine — untracked = invisible to the manifest. Future installs via cask keep the Brewfile truthful.",act:"cask \"raycast\"\ncask \"obsidian\"\ncask \"karabiner-elements\"\n# brew bundle dump --file=- | diff against Brewfile to find the rest",m:["mx3","mxb"]},
+ {id:"D5",cat:"Apps",title:"Setapp as an explicit step",why:"BetterTouchTool, CleanShot X, Hookmark, iStat Menus run as login items but arrive via Setapp — a silent dependency of 'my machine feels right'.",act:"cask \"setapp\"\n# + Setapp sign-in on the manual checklist (A5)",m:["mx3","mxb"]},
+ {id:"D6",cat:"Apps",done:true,title:"Wispr Flow stays manual (house rule)",why:"CLAUDE.md: never in Brewfile — manual install preserves the referral credit. Belongs on the A5 checklist only.",act:"(rule respected — no action)",m:[]},
+ {id:"E1",cat:"Defaults",decision:true,title:"InitialKeyRepeat: 120 (mx3) vs 15 (mxb)",why:"120 ≈ 1.8s before key repeat starts — looks accidental for a keyboard-first user. If intentional (hyper-key timing?) document it in machines/mx3.notes.md.",act:"defaults write -g InitialKeyRepeat -int 15",m:["mx3"]},
+ {id:"E2",cat:"Defaults",title:"Full Keyboard Access everywhere",why:"mxb has AppleKeyboardUIMode=3 (Tab reaches every control); mx3 is at 1.",act:"defaults write -g AppleKeyboardUIMode -int 3",m:["mx3"]},
+ {id:"E3",cat:"Defaults",decision:true,title:"Screenshot style: display vs window",why:"Pick one style; mxb also shows clicks + cursor in recordings.",act:"defaults write com.apple.screencapture style -string window\nkillall SystemUIServer",m:["mx3","mxb"]},
+ {id:"E6",cat:"Defaults",title:"Disable spelling autocorrect explicitly",why:"Unset on mx3 (=on), on on mxb. Keyboard purists usually want it off, deliberately.",act:"defaults write -g NSAutomaticSpellingCorrectionEnabled -bool false",m:["mx3","mxb"]},
+ {id:"E8",cat:"Defaults",title:"Fold winners into macos-defaults.sh",why:"The script currently holds only the trackpad trio — add keyboard/finder/dock groups so decisions live in code.",act:"# macos-defaults.sh: add groups mirroring the E-items you selected",m:[]},
+ {id:"F1",cat:"Hygiene",title:"Reconcile both keybindings clones",why:"mxb on branch maxbook-pro + dirty zshrc; mx3 on main + 3 dirty files + 3 stashes. Both ends of 'git-only sync' are diverging.",act:"# on each machine: review, commit, merge toward main\ngit -C ~/keybindings status",m:["mx3","mxb"]},
+ {id:"F2",cat:"Hygiene",decision:true,title:"Three remap engines on mx3",why:"Karabiner/goku + kanata + skhd/yabai taps installed. Multiple grabbers of input events can fight; pick the stack, uninstall the rest.",act:"brew uninstall kanata   # if karabiner wins\nbrew untap koekeishiya/formulae  # if unused",m:["mx3"]},
+ {id:"F3",cat:"Hygiene",title:"Weekly ./run --check LaunchAgent",why:"The homeostat model: drift detection between new-machine events is what keeps this repo alive (requires A3).",act:"# LaunchAgent: uno.loudog.machine-setup-check\n# runs ./run --check weekly, notifies on WOULD-CHANGE",m:["mx3","mxb"]}
+];
+const CATS = ["All","Repo","Bootstrap","CLI","Apps","Defaults","Hygiene"];
+const LS = "machine-setup-dash-v1";
+let state = {cat:"All", q:"", sel: JSON.parse(localStorage.getItem(LS)||"[]")};
+
+function tiles(){
+  const open = SUGG.filter(s=>!s.done).length, dec = SUGG.filter(s=>s.decision).length;
+  const diffs = DIFFS.filter(d=>d[1]!==d[2]).length;
+  document.getElementById("tiles").innerHTML = [
+    ["58 vs 33","brew formulae (mxb vs mx3)"],["80 vs 50","casks (mxb vs mx3)"],
+    [diffs+" / "+DIFFS.length,"defaults differ"],[open,"open suggestions"],[dec,"need a decision"],
+    [`<span id="selTile">${state.sel.length}</span>`,"selected by you"]
+  ].map(([v,l])=>`<div class="tile"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+}
+function diffRows(){
+  document.getElementById("diffrows").innerHTML = DIFFS.map(d=>{
+    const s = d[1]===d[2];
+    return `<tr><td><span class="tip" data-tip="${d[3]}">${d[0]}</span></td>
+      <td class="${s?'same':'diff'}">${d[1]}</td><td class="${s?'same':'diff'}">${d[2]}</td>
+      <td class="note">${s?'✓ matched':'differs'}</td></tr>`;
+  }).join("");
+}
+function catChips(){
+  document.getElementById("cats").innerHTML = CATS.map(c=>
+    `<button class="chipbtn" aria-pressed="${state.cat===c}" onclick="setCat('${c}')">${c}</button>`).join(" ");
+}
+function setCat(c){state.cat=c;render();}
+function render(){
+  catChips();
+  const q = state.q.toLowerCase();
+  document.getElementById("list").innerHTML = SUGG.filter(s=>
+    (state.cat==="All"||s.cat===state.cat) &&
+    (!q || (s.id+s.title+s.why+s.act+s.cat).toLowerCase().includes(q))
+  ).map(s=>{
+    const c = state.sel.includes(s.id);
+    const links = (s.links||[]).map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${t} ↗</a>`).join(" · ");
+    return `<div class="sugg ${c?'checked':''}">
+      <input type="checkbox" ${c?'checked':''} ${s.done?'disabled':''} onchange="toggle('${s.id}')" aria-label="select ${s.id}">
+      <div><div class="t">${s.id} — ${s.title}</div>
+      <div class="why">${s.why}</div>
+      <div class="act"><pre>${s.act.replace(/</g,"&lt;")}</pre>${links?`<div style="margin-top:4px">${links}</div>`:""}</div>
+      <div class="badges"><span class="badge">${s.cat}</span>
+        ${(s.m||[]).map(m=>`<span class="badge m-${m}">${m}</span>`).join("")}
+        ${s.done?'<span class="badge done">done</span>':""}
+        ${s.decision?'<span class="badge decision">needs your decision</span>':""}</div>
+      </div></div>`;
+  }).join("") || `<div class="note">no matches</div>`;
+  plan(); tiles();
+}
+function toggle(id){
+  state.sel = state.sel.includes(id) ? state.sel.filter(x=>x!==id) : [...state.sel,id];
+  localStorage.setItem(LS, JSON.stringify(state.sel)); render();
+}
+function plan(){
+  const picked = SUGG.filter(s=>state.sel.includes(s.id));
+  document.getElementById("count").textContent = picked.length;
+  document.getElementById("planOut").textContent = picked.length
+    ? picked.map(s=>`## ${s.id} — ${s.title}\n${s.act}`).join("\n\n")
+    : "Check suggestions above — their action snippets collect here, ready to paste into the conversation or a script.";
+}
+document.getElementById("q").addEventListener("input",e=>{state.q=e.target.value;render();});
+document.getElementById("copyBtn").onclick=()=>navigator.clipboard.writeText(document.getElementById("planOut").textContent);
+document.getElementById("clearBtn").onclick=()=>{state.sel=[];localStorage.setItem(LS,"[]");render();};
+document.getElementById("themeBtn").onclick=()=>{
+  const r=document.documentElement, cur=r.getAttribute("data-theme");
+  const sysDark=matchMedia("(prefers-color-scheme: dark)").matches;
+  r.setAttribute("data-theme", cur ? (cur==="dark"?"light":"dark") : (sysDark?"light":"dark"));
+};
+diffRows(); render();
+</script>
+</body>
+</html>
