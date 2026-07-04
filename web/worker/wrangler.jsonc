@@ -1,0 +1,14 @@
+// loudog.uno bootstrap worker — deploy with: npx wrangler deploy
+// After `npx wrangler login`, this claims start.loudog.uno (zone already on Cloudflare).
+// The apex site (Vercel) is untouched. To ALSO get loudog.uno/start later,
+// orange-cloud the apex DNS record and uncomment the route below.
+{
+  "name": "start",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-01",
+  "workers_dev": false,
+  "routes": [
+    { "pattern": "start.loudog.uno", "custom_domain": true }
+    // , { "pattern": "loudog.uno/start*", "zone_name": "loudog.uno" }
+  ]
+}
