@@ -1,1 +1,7 @@
 .DS_Store
+
+# Full machine inventory records contain secrets (serials, MACs, Tailscale
+# IPs) and this repo is public. Real records stay local; only the schema
+# example is tracked. See machines/README.md.
+machines/*.inventory.json
+!machines/_example.inventory.json

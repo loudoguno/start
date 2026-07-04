@@ -1,0 +1,26 @@
+{
+  "host": "example",
+  "computerName": "Example Machine",
+  "role": "what this machine is for",
+  "hardware": {
+    "modelName": "MacBook Pro",
+    "modelIdentifier": "MacBookProXX,X",
+    "chip": "Apple MX",
+    "cores": "N (P + E)",
+    "memory": "NN GB",
+    "serialNumber": "REDACTED-IN-EXAMPLE",
+    "hardwareUUID": "REDACTED-IN-EXAMPLE"
+  },
+  "os": { "product": "macOS", "version": "26.x", "build": "XXXXX" },
+  "network": {
+    "macAddresses": { "en0": "xx:xx:xx:xx:xx:xx", "en1": "xx:xx:xx:xx:xx:xx" },
+    "tailscale": { "v4": "100.x.x.x", "v6": "fd7a:..." }
+  },
+  "ssh": {
+    "hostKey_ed25519": "ssh-ed25519 AAAA...",
+    "userKeys": {
+      "id_ed25519.pub": "ssh-ed25519 AAAA... comment"
+    }
+  },
+  "registeredAt": "YYYY-MM-DD"
+}

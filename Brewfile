@@ -9,6 +9,7 @@ brew "git"        # version control (newer than the CLT copy)
 brew "gh"         # GitHub CLI — auth, repo create, clone
 brew "node"       # needed for npx-launched MCP servers (PAI dependency)
 brew "uv"         # fast Python package manager (PAI dependency)
+brew "jq"         # JSON on the command line (used by scripts/trust-fleet.sh)
 
 # ── GUI apps ───────────────────────────────────────────────────
 cask "claude-code"           # Claude Code CLI (stable channel)

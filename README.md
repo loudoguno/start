@@ -48,8 +48,9 @@ docs/DECISIONS.md    ← why each technology/convention was chosen
 Brewfile             ← apps & CLI tools (brew bundle)
 macos-defaults.sh    ← system settings, one comment each
 config/              ← dotfiles, symlinked to ~/.<name>
-scripts/             ← bootstrap · machine-profile · link-dotfiles
-machines/            ← per-machine snapshots + quirk notes (committed!)
+scripts/             ← bootstrap · machine-profile · link-dotfiles · register-machine · trust-fleet
+machines/            ← per-machine snapshots + quirk notes (committed!) + gitignored inventory
+assets/              ← user-pictures (account avatars) + wallpapers (per-machine)
 logs/JOURNAL.md      ← what was asked, what was done, did it work
 CLAUDE.md            ← standing instructions for Claude Code
 SUGGESTIONS.md       ← opt-in ideas from machine inventories (you select)
