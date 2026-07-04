@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# ═══════════════════════════════════════════════════════════════
+#  machine-setup · "the button"
+#  Idempotent: safe to run any number of times. A second
+#  consecutive run should change nothing and finish fast.
+# ═══════════════════════════════════════════════════════════════
+set -euo pipefail
+cd "$(dirname "$0")"
+
+echo "════════════ machine-setup ════════════"
+
+# 1. Prerequisites: Xcode CLT, Homebrew, Claude Code
+./scripts/bootstrap.sh
+
+# 2. Profile this machine (and warn if the context changed)
+./scripts/machine-profile.sh
+
+# 3. Apps & CLI tools
+echo "🍺 Applying Brewfile…"
+brew bundle --file=Brewfile
+
+# 4. System settings
+echo "⚙️  Applying macOS defaults…"
+./macos-defaults.sh
+
+# 5. Dotfiles
+echo "🔗 Linking dotfiles…"
+./scripts/link-dotfiles.sh
+
+echo "═══════════════════════════════════════"
+echo "✅ Done. If anything didn't take effect, tell Claude Code"
+echo "   and make sure the outcome gets journaled."
